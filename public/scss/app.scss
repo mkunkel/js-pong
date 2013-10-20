@@ -1,0 +1,55 @@
+body, html {
+  height: 100%;
+  overflow: hidden;
+  background-color: lighten(black, 10%);
+}
+
+#start {
+  width: 600px;
+  // height: 150px;
+  border-radius: 20px;
+  position: absolute;
+  margin: 0;
+  visibility: hidden;
+  h1 {
+    margin: 0px;
+  }
+  p {
+    text-align: left;
+    display: inline-block;
+    margin: auto;
+  }
+}
+
+#gameBoard {
+  visibility: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+#ball {
+  width: 25px;
+  height: 25px;
+  border-radius: 100%;
+  background-color: darken(white, 15%);
+  position: absolute;
+}
+
+.gutter {
+  height: 100%;
+  width: 25px;
+  position: absolute;
+  vertical-align: middle;
+  &#left {
+    left: 0;
+  }
+  &#right {
+    right: 0;
+  }
+  .paddle {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    background-color: darken(white, 15%);
+  }
+}

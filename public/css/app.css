@@ -1,0 +1,44 @@
+body, html {
+  height: 100%;
+  overflow: hidden;
+  background-color: #1a1a1a; }
+
+#start {
+  width: 600px;
+  border-radius: 20px;
+  position: absolute;
+  margin: 0;
+  visibility: hidden; }
+  #start h1 {
+    margin: 0px; }
+  #start p {
+    text-align: left;
+    display: inline-block;
+    margin: auto; }
+
+#gameBoard {
+  visibility: hidden;
+  width: 100%;
+  height: 100%; }
+
+#ball {
+  width: 25px;
+  height: 25px;
+  border-radius: 100%;
+  background-color: #d9d9d9;
+  position: absolute; }
+
+.gutter {
+  height: 100%;
+  width: 25px;
+  position: absolute;
+  vertical-align: middle; }
+  .gutter#left {
+    left: 0; }
+  .gutter#right {
+    right: 0; }
+  .gutter .paddle {
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    background-color: #d9d9d9; }
