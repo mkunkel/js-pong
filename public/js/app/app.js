@@ -2,16 +2,20 @@
 
 var game = {};
 game.speed = {};
-game.speed.ball = 5;
+game.speed.ball = 2;
 game.speed.paddle = 3;
 game.player1 = {};
 game.player1.paddle = {};
+game.player1.score = 0;
+game.player1.paddle.height = 100;
 game.player1.paddle.velocity = 0;
 game.player2 = {};
 game.player2.paddle = {};
+game.player2.score = 0;
+game.player2.paddle.height = 100;
 game.player2.paddle.velocity = 0;
 game.ball = {};
-game.ball.velocity = 0;
+game.ball.velocity = {};
 
 
 $(document).ready(initialize);
@@ -22,17 +26,14 @@ function initialize(){
   game.height = window.innerHeight;
   var btnLeft = (game.width / 2) - (parseInt($('#start').css('width'), 10) / 2);
   var btnTop = (game.height / 2) - (parseInt($('#start').css('height'), 10) / 2);
-  var ballOffset = parseInt($('#ball').css('width'), 10) / 2;
-  $('#ball').css('top', (game.height / 2) - ballOffset);
-  $('#ball').css('left', (game.width / 2) - ballOffset);
+
   var paddleTop = (game.height / 2) - (parseInt($('.paddle').css('height'), 10) / 2);
   $('#start').css('left', btnLeft).css('top', btnTop).css('visibility', 'visible');
   $('.paddle').css('top', paddleTop);
   $('#start').click(clickStart);
   $('html').keydown(keyPress);
   $('html').keyup(keyRelease);
-
-  game.timer = setInterval(draw, 20);
+  ballStart();
 }
 
 // -------------------------------------------------------------------- //
@@ -42,6 +43,7 @@ function initialize(){
 function clickStart() {
   $('#start').css('visibility', 'hidden');
   $('#gameBoard').css('visibility', 'visible').focus();
+  game.timer = setInterval(draw, 20);
 }
 
 function keyPress(key) {
@@ -102,6 +104,8 @@ function draw() {
     //left paddle is not at bottom and has a downward velocity
     $left.css('top', (leftTop + game.speed.paddle * game.player1.paddle.velocity) + 'px');
   }
+  game.player1.paddle.top = parseInt($('#left .paddle').css('top'), 10);
+  game.player1.paddle.bottom = game.player1.paddle.top + game.player1.paddle.height;
 
   //update right paddle
   var rightTop = parseInt($right.css('top'), 10);
@@ -112,51 +116,68 @@ function draw() {
     //right paddle is not at bottom and has a downward velocity
     $right.css('top', (rightTop + game.speed.paddle * game.player2.paddle.velocity) + 'px');
   }
+  game.player2.paddle.top = parseInt($('#right .paddle').css('top'), 10);
+  game.player2.paddle.bottom = game.player2.paddle.top + game.player2.paddle.height;
+
+  var $ball = $('#ball');
+  var ballDiameter = parseInt($ball.css('height'), 10);
+  var ballTop = parseInt($ball.css('top'), 10);
+  var ballBottom = ballTop + ballDiameter;
+  var ballLeft = parseInt($ball.css('left'), 10);
+  var ballRight = ballLeft + ballDiameter;
+  var ballCenter = ballTop + ballDiameter;
+  var gutter = parseInt($('.gutter').css('width'), 10);
+  // console.log((ballTop) + ' & ' + (game.height - ballBottom));
+
+  //update ball position
+  $ball.css('left', (ballLeft + (game.speed.ball * game.ball.velocity.x)) + 'px');
+  $ball.css('top', (ballTop + (game.speed.ball * game.ball.velocity.y)) + 'px');
+
+  //check for ball collisions on y axis and update velocity.
+  if (ballTop <= 0) {
+    if (game.ball.velocity.y < 0) {game.ball.velocity.y *= -1;} //multiply velocity by -1 to reverse direction
+  } else if (ballBottom >=game.height) {
+    if (game.ball.velocity.y > 0) {game.ball.velocity.y *= -1;} //multiply velocity by -1 to reverse direction
+  }
+
+  //check for same on x axis. Need separate conditional in case ball
+  //reaches both x and y boundaries at the same time
+  if (ballLeft <= gutter) { // Ball hit left gutter
+    console.log(game.ball.velocity.x + ', ' + game.ball.velocity.y);
+    if (ballCenter >= game.player1.paddle.top && ballCenter <= game.player1.paddle.bottom) {
+      //Ball hit left paddle
+      if (game.ball.velocity.x < 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
+      console.log('paddle hit');
+    } else {
+      //Player 2 scores!
+      ballStart();
+      game.player2.score += 1;
+    }
+  } else if (ballRight >= game.width - gutter) { // Ball hit right gutter
+    if (ballCenter >= game.player2.paddle.top && ballCenter <= game.player2.paddle.bottom) {
+      //Ball hit right paddle
+      if (game.ball.velocity.x > 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
+      console.log('paddle hit');
+    } else {
+      //Player 2 scores!
+      ballStart();
+      game.player1.score += 1;
+    }
+  }
+
+  //update scores
+  $('#leftScore').text(game.player1.score);
+  $('#rightScore').text(game.player2.score);
 }
 
 function ballStart() {
-  // $('#ball')
-}
 
-
-
-
-// -------------------------------------------------------------------- //
-// -------------------------------------------------------------------- //
-// -------------------------------------------------------------------- //
-
-
-function getValue(selector, fn){
-  var value = $(selector).val();
-  value = value.trim();
-  $(selector).val('');
-
-  if(fn){
-    value = fn(value);
-  }
-
-  return value;
-}
-
-function parseUpperCase(string){
-  return string.toUpperCase();
-}
-
-function parseLowerCase(string){
-  return string.toLowerCase();
-}
-
-function formatCurrency(number){
-  return '$' + number.toFixed(2);
-}
-
-// -------------------------------------------------------------------- //
-// -------------------------------------------------------------------- //
-// -------------------------------------------------------------------- //
-
-function canRun(flag){
-  var isQunit = $('#qunit').length > 0;
-  var isFlag = flag !== undefined;
-  var value = isQunit && isFlag || !isQunit;
-  return value;
+  // console.log('new ball');
+  var ballOffset = parseInt($('#ball').css('width'), 10) / 2;
+  $('#ball').css('top', (game.height / 2) - ballOffset);
+  $('#ball').css('left', (game.width / 2) - ballOffset);
+  var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+  game.ball.velocity.x = Math.floor(Math.random()*3 +1) * plusOrMinus;
+  plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+  game.ball.velocity.y = Math.floor(Math.random()*3 + 1) * plusOrMinus;
 }

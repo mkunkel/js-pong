@@ -27,6 +27,19 @@ body, html {
   height: 100%;
 }
 
+h2 {
+  font-size: 100px;
+  color: rgba(200,200,200,.4);
+  position: absolute;
+  top: 15px;
+  &#leftScore {
+    left: 200px;
+  }
+  &#rightScore {
+    right: 200px;
+  }
+}
+
 #ball {
   width: 25px;
   height: 25px;
