@@ -3,7 +3,7 @@
 var game = {};
 game.speed = {};
 game.speed.ball = 2;
-game.speed.paddle = 3;
+game.speed.paddle = 4;
 game.player1 = {};
 game.player1.paddle = {};
 game.player1.score = 0;
@@ -144,24 +144,29 @@ function draw() {
   //reaches both x and y boundaries at the same time
   if (ballLeft <= gutter) { // Ball hit left gutter
     console.log(game.ball.velocity.x + ', ' + game.ball.velocity.y);
-    if (ballCenter >= game.player1.paddle.top && ballCenter <= game.player1.paddle.bottom) {
+    if (ballCenter + (ballDiameter / 2) >= game.player1.paddle.top && ballCenter - (ballDiameter / 2) <= game.player1.paddle.bottom) {
       //Ball hit left paddle
       if (game.ball.velocity.x < 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
       console.log('paddle hit');
-    } else {
+    } else if (ballLeft <= 0) {
       //Player 2 scores!
+
       ballStart();
       game.player2.score += 1;
+
     }
   } else if (ballRight >= game.width - gutter) { // Ball hit right gutter
-    if (ballCenter >= game.player2.paddle.top && ballCenter <= game.player2.paddle.bottom) {
+
+    if (ballCenter + (ballDiameter / 2) >= game.player2.paddle.top && ballCenter - (ballDiameter / 2) <= game.player2.paddle.bottom) {
       //Ball hit right paddle
       if (game.ball.velocity.x > 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
       console.log('paddle hit');
-    } else {
+    } else if (ballRight >= game.width) {
       //Player 2 scores!
+
       ballStart();
       game.player1.score += 1;
+
     }
   }
 
