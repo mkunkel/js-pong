@@ -1,21 +1,24 @@
 'use strict';
 
 var game = {};
-game.speed = {};
-game.speed.ball = 2;
+game.speed = {}; //default speeds
+game.speed.ball = 3;
 game.speed.paddle = 4;
 game.player1 = {};
 game.player1.paddle = {};
 game.player1.score = 0;
 game.player1.paddle.height = 100;
 game.player1.paddle.velocity = 0;
+game.player1.paddle.speed = game.speed.paddle;
 game.player2 = {};
 game.player2.paddle = {};
 game.player2.score = 0;
 game.player2.paddle.height = 100;
 game.player2.paddle.velocity = 0;
+game.player2.paddle.speed = game.speed.paddle;
 game.ball = {};
 game.ball.velocity = {};
+game.ball.speed = game.speed.ball;
 
 
 $(document).ready(initialize);
@@ -130,8 +133,8 @@ function draw() {
   // console.log((ballTop) + ' & ' + (game.height - ballBottom));
 
   //update ball position
-  $ball.css('left', (ballLeft + (game.speed.ball * game.ball.velocity.x)) + 'px');
-  $ball.css('top', (ballTop + (game.speed.ball * game.ball.velocity.y)) + 'px');
+  $ball.css('left', (ballLeft + (game.ball.speed * game.ball.velocity.x)) + 'px');
+  $ball.css('top', (ballTop + (game.ball.speed * game.ball.velocity.y)) + 'px');
 
   //check for ball collisions on y axis and update velocity.
   if (ballTop <= 0) {
@@ -143,15 +146,17 @@ function draw() {
   //check for same on x axis. Need separate conditional in case ball
   //reaches both x and y boundaries at the same time
   if (ballLeft <= gutter) { // Ball hit left gutter
-    console.log(game.ball.velocity.x + ', ' + game.ball.velocity.y);
+
     if (ballCenter + (ballDiameter / 2) >= game.player1.paddle.top && ballCenter - (ballDiameter / 2) <= game.player1.paddle.bottom) {
       //Ball hit left paddle
-      if (game.ball.velocity.x < 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
-      console.log('paddle hit');
+      if (game.ball.velocity.x < 0) {
+        game.ball.velocity.x *= -1; // make sure the ball goes in the reverse direction
+        adjustBallAngle(game.player1.paddle, $('#left .paddle'));
+      }
     } else if (ballLeft <= 0) {
       //Player 2 scores!
 
-      ballStart();
+      ballStart('left');
       game.player2.score += 1;
 
     }
@@ -159,12 +164,14 @@ function draw() {
 
     if (ballCenter + (ballDiameter / 2) >= game.player2.paddle.top && ballCenter - (ballDiameter / 2) <= game.player2.paddle.bottom) {
       //Ball hit right paddle
-      if (game.ball.velocity.x > 0) {game.ball.velocity.x *= -1;} // make sure the ball goes in the reverse direction
-      console.log('paddle hit');
+      if (game.ball.velocity.x > 0) {
+        game.ball.velocity.x *= -1; // make sure the ball goes in the reverse direction
+        adjustBallAngle(game.player2.paddle, $('#right .paddle'));
+      }
     } else if (ballRight >= game.width) {
       //Player 2 scores!
 
-      ballStart();
+      ballStart('right');
       game.player1.score += 1;
 
     }
@@ -175,14 +182,46 @@ function draw() {
   $('#rightScore').text(game.player2.score);
 }
 
-function ballStart() {
-
+function ballStart(toward) {
+  game.ball.speed = game.speed.ball;
   // console.log('new ball');
   var ballOffset = parseInt($('#ball').css('width'), 10) / 2;
   $('#ball').css('top', (game.height / 2) - ballOffset);
   $('#ball').css('left', (game.width / 2) - ballOffset);
   var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-  game.ball.velocity.x = Math.floor(Math.random()*3 +1) * plusOrMinus;
+  if (toward === 'left') {
+    plusOrMinus = -1;
+  } else if (toward ==='right') {
+    plusOrMinus = 1;
+  }
+  game.ball.velocity.x = Math.floor(Math.random()*2 +1) * plusOrMinus;
   plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-  game.ball.velocity.y = Math.floor(Math.random()*3 + 1) * plusOrMinus;
+  game.ball.velocity.y = Math.floor(Math.random()*2 + 1) * plusOrMinus;
+}
+
+function adjustBallAngle(paddle, $element) {
+  var section = paddle.height / 5;
+  var top = parseInt($element.css('top'), 10);
+  var ballCenter = parseInt($('#ball').css('top'), 10) + (parseInt($('#ball').css('height'), 10) / 2);
+  if (ballCenter < top + section) {
+    game.ball.velocity.y -= 0.5;
+  } else if(ballCenter < top + (section * 2)) {
+    game.ball.velocity.y -= 0.25;
+  } else if(ballCenter < top + (section * 4) && ballCenter > top + (section * 3)) {
+    game.ball.velocity.y += 0.25;
+  } else if(ballCenter < top + (section * 5)) {
+    game.ball.velocity.y += 0.5;
+  }
+  if (paddle.velocity === -0.25) {
+    game.ball.velocity.y--;
+  } else if (paddle.velocity === 0.25) {
+    game.ball.velocity.y++;
+  }
+  adjustBallSpeed();
+}
+
+function adjustBallSpeed() {
+  game.ball.speed += 0.5;
+  // debugger;
+  console.log(game.ball.speed);
 }
