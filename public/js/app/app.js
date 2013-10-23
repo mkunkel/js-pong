@@ -102,10 +102,10 @@ function draw() {
 
   if (leftTop > 0 && game.player1.paddle.velocity === -1) {
     //left paddle is not at top and has an upward velocity
-    $left.css('top', (leftTop + game.speed.paddle * game.player1.paddle.velocity) + 'px');
+    $left.css('top', (leftTop + game.player1.paddle.speed * game.player1.paddle.velocity) + 'px');
   } else if (leftTop + parseInt($left.css('height'), 10) < game.height && game.player1.paddle.velocity === 1) {
     //left paddle is not at bottom and has a downward velocity
-    $left.css('top', (leftTop + game.speed.paddle * game.player1.paddle.velocity) + 'px');
+    $left.css('top', (leftTop + game.player1.paddle.speed * game.player1.paddle.velocity) + 'px');
   }
   game.player1.paddle.top = parseInt($('#left .paddle').css('top'), 10);
   game.player1.paddle.bottom = game.player1.paddle.top + game.player1.paddle.height;
@@ -114,10 +114,10 @@ function draw() {
   var rightTop = parseInt($right.css('top'), 10);
   if (rightTop > 0 && game.player2.paddle.velocity === -1) {
     //right paddle is not at top and has an upward velocity
-    $right.css('top', (rightTop + game.speed.paddle * game.player2.paddle.velocity) + 'px');
+    $right.css('top', (rightTop + game.player2.paddle.speed * game.player2.paddle.velocity) + 'px');
   } else if (rightTop + parseInt($right.css('height'), 10) < game.height && game.player2.paddle.velocity === 1) {
     //right paddle is not at bottom and has a downward velocity
-    $right.css('top', (rightTop + game.speed.paddle * game.player2.paddle.velocity) + 'px');
+    $right.css('top', (rightTop + game.player2.paddle.speed * game.player2.paddle.velocity) + 'px');
   }
   game.player2.paddle.top = parseInt($('#right .paddle').css('top'), 10);
   game.player2.paddle.bottom = game.player2.paddle.top + game.player2.paddle.height;
