@@ -75,16 +75,16 @@ function keyRelease(key) {
   if ($('#gameBoard').css('visibility') === 'visible') {
     switch(key.which) {
     case 87: //user released W key
-      game.player1.paddle.velocity = 0;
+      if (game.player1.paddle.velocity === -1) {game.player1.paddle.velocity = 0;}
       break;
     case 83: //user released S key
-      game.player1.paddle.velocity = 0;
+      if (game.player1.paddle.velocity === 1) {game.player1.paddle.velocity = 0;}
       break;
     case 38: //user released up key
-      game.player2.paddle.velocity = 0;
+      if (game.player2.paddle.velocity === -1) {game.player2.paddle.velocity = 0;}
       break;
     case 40: //user released down key
-      game.player2.paddle.velocity = 0;
+      if (game.player2.paddle.velocity === 1) {game.player2.paddle.velocity = 0;}
     }
   }
 }
