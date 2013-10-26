@@ -4,6 +4,11 @@ body, html {
   background-color: lighten(black, 10%);
 }
 
+#chkContainer {
+  position: absolute;
+  right: 0;
+}
+
 #start {
   width: 600px;
   // height: 150px;

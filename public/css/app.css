@@ -3,6 +3,10 @@ body, html {
   overflow: hidden;
   background-color: #1a1a1a; }
 
+#chkContainer {
+  position: absolute;
+  right: 0; }
+
 #start {
   width: 600px;
   border-radius: 20px;

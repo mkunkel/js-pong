@@ -1,6 +1,7 @@
 'use strict';
 
 var game = {};
+game.multiplayer = true;
 game.speed = {}; //default speeds
 game.speed.ball = 3;
 game.speed.paddle = 4;
@@ -34,6 +35,7 @@ function initialize(){
   $('#start').css('left', btnLeft).css('top', btnTop).css('visibility', 'visible');
   $('.paddle').css('top', paddleTop);
   $('#start').click(clickStart);
+  $('#singlePlayer').click(clickSinglePlayer);
   $('html').keydown(keyPress);
   $('html').keyup(keyRelease);
   ballStart();
@@ -52,12 +54,13 @@ function clickStart() {
 function keyPress(key) {
   //first make sure the game has been started
   if ($('#gameBoard').css('visibility') === 'visible') {
+    var isMulti = game.multiplayer;
     switch(key.which) {
     case 87: //user pressed W key
-      game.player1.paddle.velocity = -1;
+      if (isMulti) {game.player1.paddle.velocity = -1;}
       break;
     case 83: //user pressed S key
-      game.player1.paddle.velocity = 1;
+      if (isMulti) {game.player1.paddle.velocity = 1;}
       break;
     case 38: //user pressed up key
       game.player2.paddle.velocity = -1;
@@ -73,12 +76,13 @@ function keyPress(key) {
 function keyRelease(key) {
   //first make sure the game has been started
   if ($('#gameBoard').css('visibility') === 'visible') {
+    var isMulti = game.multiplayer;
     switch(key.which) {
     case 87: //user released W key
-      if (game.player1.paddle.velocity === -1) {game.player1.paddle.velocity = 0;}
+      if (game.player1.paddle.velocity === -1 && isMulti) {game.player1.paddle.velocity = 0;}
       break;
     case 83: //user released S key
-      if (game.player1.paddle.velocity === 1) {game.player1.paddle.velocity = 0;}
+      if (game.player1.paddle.velocity === 1 && isMulti) {game.player1.paddle.velocity = 0;}
       break;
     case 38: //user released up key
       if (game.player2.paddle.velocity === -1) {game.player2.paddle.velocity = 0;}
@@ -89,6 +93,16 @@ function keyRelease(key) {
   }
 }
 
+function clickSinglePlayer() {
+  var isChecked = $('#singlePlayer')[0].checked;
+  game.multiplayer = !isChecked;
+  console.log(game.multiplayer);
+  if (isChecked) {
+    $('#start p').text('Up and down arrow keys control right paddle');
+  } else {
+    $('#start p').html('Player 1 uses W and S to move<br>Player 2 uses up and down arrow keys to move');
+  }
+}
 // -------------------------------------------------------------------- //
 // -------------------------------------------------------------------- //
 // -------------------------------------------------------------------- //
@@ -96,6 +110,29 @@ function keyRelease(key) {
 function draw() {
   var $left = $('#left .paddle');
   var $right = $('#right .paddle');
+
+  if (!game.multiplayer && game.ball.velocity.x < 0) {
+  //   if(game.ball.velocity.y < 0) {
+  //     console.log('ball moving up');
+  //     game.player1.paddle.velocity = -1;
+  //   } else if(game.ball.velocity.y > 0) {
+  //     console.log('ball moving down');
+  //     game.player1.paddle.velocity = 1;
+  //   } else {
+  //     console.log('ball moving horizontal');
+  //     game.player1.paddle.velocity = 0;
+  //   }
+    if (game.ball.top < game.player1.paddle.top) {
+      console.log('above');
+      game.player1.paddle.velocity = -1;
+    } else if (game.ball.center > game.player1.paddle.top + (game.player1.paddle.height / 2)) {
+      console.log('below');
+      game.player1.paddle.velocity = 1;
+    } else {
+      console.log('even');
+      game.player1.paddle.velocity = 0;
+    }
+  }
 
   //update left paddle
   var leftTop = parseInt($left.css('top'), 10);
@@ -123,52 +160,52 @@ function draw() {
   game.player2.paddle.bottom = game.player2.paddle.top + game.player2.paddle.height;
 
   var $ball = $('#ball');
-  var ballDiameter = parseInt($ball.css('height'), 10);
-  var ballTop = parseInt($ball.css('top'), 10);
-  var ballBottom = ballTop + ballDiameter;
-  var ballLeft = parseInt($ball.css('left'), 10);
-  var ballRight = ballLeft + ballDiameter;
-  var ballCenter = ballTop + ballDiameter;
+  game.ball.diameter = parseInt($ball.css('height'), 10);
+  game.ball.top = parseInt($ball.css('top'), 10);
+  game.ball.bottom = game.ball.top + game.ball.diameter;
+  game.ball.left = parseInt($ball.css('left'), 10);
+  game.ball.right = game.ball.left + game.ball.diameter;
+  game.ball.center = game.ball.top + game.ball.diameter;
   var gutter = parseInt($('.gutter').css('width'), 10);
-  // console.log((ballTop) + ' & ' + (game.height - ballBottom));
+  // console.log((game.ball.top) + ' & ' + (game.height - game.ball.bottom));
 
   //update ball position
-  $ball.css('left', (ballLeft + (game.ball.speed * game.ball.velocity.x)) + 'px');
-  $ball.css('top', (ballTop + (game.ball.speed * game.ball.velocity.y)) + 'px');
+  $ball.css('left', (game.ball.left + (game.ball.speed * game.ball.velocity.x)) + 'px');
+  $ball.css('top', (game.ball.top + (game.ball.speed * game.ball.velocity.y)) + 'px');
 
   //check for ball collisions on y axis and update velocity.
-  if (ballTop <= 0) {
+  if (game.ball.top <= 0) {
     if (game.ball.velocity.y < 0) {game.ball.velocity.y *= -1;} //multiply velocity by -1 to reverse direction
-  } else if (ballBottom >=game.height) {
+  } else if (game.ball.bottom >=game.height) {
     if (game.ball.velocity.y > 0) {game.ball.velocity.y *= -1;} //multiply velocity by -1 to reverse direction
   }
 
   //check for same on x axis. Need separate conditional in case ball
   //reaches both x and y boundaries at the same time
-  if (ballLeft <= gutter) { // Ball hit left gutter
+  if (game.ball.left <= gutter) { // Ball hit left gutter
 
-    if (ballCenter + (ballDiameter / 2) >= game.player1.paddle.top && ballCenter - (ballDiameter / 2) <= game.player1.paddle.bottom) {
+    if (game.ball.center + (game.ball.diameter / 2) >= game.player1.paddle.top && game.ball.center - (game.ball.diameter / 2) <= game.player1.paddle.bottom) {
       //Ball hit left paddle
       if (game.ball.velocity.x < 0) {
         game.ball.velocity.x *= -1; // make sure the ball goes in the reverse direction
         adjustBallAngle(game.player1.paddle, $('#left .paddle'));
       }
-    } else if (ballLeft <= 0) {
+    } else if (game.ball.left <= 0) {
       //Player 2 scores!
 
       ballStart('left');
       game.player2.score += 1;
 
     }
-  } else if (ballRight >= game.width - gutter) { // Ball hit right gutter
+  } else if (game.ball.right >= game.width - gutter) { // Ball hit right gutter
 
-    if (ballCenter + (ballDiameter / 2) >= game.player2.paddle.top && ballCenter - (ballDiameter / 2) <= game.player2.paddle.bottom) {
+    if (game.ball.center + (game.ball.diameter / 2) >= game.player2.paddle.top && game.ball.center - (game.ball.diameter / 2) <= game.player2.paddle.bottom) {
       //Ball hit right paddle
       if (game.ball.velocity.x > 0) {
         game.ball.velocity.x *= -1; // make sure the ball goes in the reverse direction
         adjustBallAngle(game.player2.paddle, $('#right .paddle'));
       }
-    } else if (ballRight >= game.width) {
+    } else if (game.ball.right >= game.width) {
       //Player 2 scores!
 
       ballStart('right');
@@ -202,14 +239,14 @@ function ballStart(toward) {
 function adjustBallAngle(paddle, $element) {
   var section = paddle.height / 5;
   var top = parseInt($element.css('top'), 10);
-  var ballCenter = parseInt($('#ball').css('top'), 10) + (parseInt($('#ball').css('height'), 10) / 2);
-  if (ballCenter < top + section) {
+  game.ball.center = parseInt($('#ball').css('top'), 10) + (parseInt($('#ball').css('height'), 10) / 2);
+  if (game.ball.center < top + section) {
     game.ball.velocity.y -= 0.5;
-  } else if(ballCenter < top + (section * 2)) {
+  } else if(game.ball.center < top + (section * 2)) {
     game.ball.velocity.y -= 0.25;
-  } else if(ballCenter < top + (section * 4) && ballCenter > top + (section * 3)) {
+  } else if(game.ball.center < top + (section * 4) && game.ball.center > top + (section * 3)) {
     game.ball.velocity.y += 0.25;
-  } else if(ballCenter < top + (section * 5)) {
+  } else if(game.ball.center < top + (section * 5)) {
     game.ball.velocity.y += 0.5;
   }
   if (paddle.velocity === -0.25) {
