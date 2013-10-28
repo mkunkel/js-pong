@@ -112,26 +112,17 @@ function draw() {
   var $right = $('#right .paddle');
 
   if (!game.multiplayer && game.ball.velocity.x < 0) {
-  //   if(game.ball.velocity.y < 0) {
-  //     console.log('ball moving up');
-  //     game.player1.paddle.velocity = -1;
-  //   } else if(game.ball.velocity.y > 0) {
-  //     console.log('ball moving down');
-  //     game.player1.paddle.velocity = 1;
-  //   } else {
-  //     console.log('ball moving horizontal');
-  //     game.player1.paddle.velocity = 0;
-  //   }
+    // Single player game, move the left paddle toward the ball
     if (game.ball.top < game.player1.paddle.top) {
-      console.log('above');
       game.player1.paddle.velocity = -1;
     } else if (game.ball.center > game.player1.paddle.top + (game.player1.paddle.height / 2)) {
-      console.log('below');
       game.player1.paddle.velocity = 1;
     } else {
-      console.log('even');
       game.player1.paddle.velocity = 0;
     }
+  } else if (!game.multiplayer) {
+    // But don't allow it to move when the ball is going toward the other side of the screen
+    game.player1.paddle.velocity = 0;
   }
 
   //update left paddle
@@ -241,13 +232,19 @@ function adjustBallAngle(paddle, $element) {
   var top = parseInt($element.css('top'), 10);
   game.ball.center = parseInt($('#ball').css('top'), 10) + (parseInt($('#ball').css('height'), 10) / 2);
   if (game.ball.center < top + section) {
+    console.log('1 ' + (game.ball.center - top));
     game.ball.velocity.y -= 0.5;
   } else if(game.ball.center < top + (section * 2)) {
+    console.log('2 ' + (game.ball.center - top));
     game.ball.velocity.y -= 0.25;
   } else if(game.ball.center < top + (section * 4) && game.ball.center > top + (section * 3)) {
+    console.log('4 ' + (game.ball.center - top));
     game.ball.velocity.y += 0.25;
   } else if(game.ball.center < top + (section * 5)) {
+    console.log('5 ' + (game.ball.center - top));
     game.ball.velocity.y += 0.5;
+  } else {
+    console.log('3 ' + (game.ball.center - top));
   }
   if (paddle.velocity === -0.25) {
     game.ball.velocity.y--;
@@ -260,5 +257,5 @@ function adjustBallAngle(paddle, $element) {
 function adjustBallSpeed() {
   game.ball.speed += 0.5;
   // debugger;
-  console.log(game.ball.speed);
+  // console.log(game.ball.speed);
 }
